@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -69,6 +71,10 @@ fun View(
             Text("+ add")
         }
 
+        if (state.isLoading) {
+            CircularProgressIndicator()
+        }
+
         LazyColumn {
             items(state.items) { item ->
                 ListItem(item) { removeItem(item) }
@@ -105,6 +111,22 @@ private fun View_Preview() {
             items = listOf(1, 2, 3),
             inputError = null,
             currentInput = null
+        ),
+            inputChanged = {},
+            addButtonClicked = {},
+            removeItem = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun View_Loading_Preview() {
+    MVVMExampleTheme {
+        View(state = State(
+            items = listOf(1, 2, 3),
+            inputError = null,
+            currentInput = null,
+            isLoading = true
         ),
             inputChanged = {},
             addButtonClicked = {},

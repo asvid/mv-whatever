@@ -11,6 +11,7 @@ data class State(
     val items: List<Int> = emptyList(),
     val inputError: String? = null,
     val currentInput: String? = null,
+    val isLoading: Boolean = false
 )
 
 class ViewModel : ViewModel() {
@@ -34,8 +35,11 @@ class ViewModel : ViewModel() {
         viewModelScope.launch {
             Model.validateInput(_state.value.currentInput)
                 .onSuccess { validatedItem ->
+                    showLoading()
                     Model.addItem(validatedItem)
+                        .onSuccess { hideLoading() }
                         .onFailure { error ->
+                            hideLoading()
                             displayErrorMessage(error)
                         }
                 }
@@ -43,6 +47,14 @@ class ViewModel : ViewModel() {
                     displayErrorMessage(error)
                 }
         }
+    }
+
+    private fun hideLoading() {
+        _state.update { it.copy(isLoading = false) }
+    }
+
+    private fun showLoading() {
+        _state.update { it.copy(isLoading = true) }
     }
 
     fun inputChanged(newInput: String) {
@@ -56,10 +68,15 @@ class ViewModel : ViewModel() {
 
 
     fun removeItem(item: Int) {
-        Model.removeItem(item)
-            .onFailure { error ->
-                displayErrorMessage(error)
-            }
+        viewModelScope.launch {
+            showLoading()
+            Model.removeItem(item)
+                .onSuccess { hideLoading() }
+                .onFailure { error ->
+                    hideLoading()
+                    displayErrorMessage(error)
+                }
+        }
     }
 
     private fun displayErrorMessage(exception: Throwable) {
