@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.random.Random
 
 
 object Model {
@@ -15,6 +16,7 @@ object Model {
     private var items: List<Int> = emptyList()
     private val _itemsFlow = MutableStateFlow(items)
     val itemsFlow: StateFlow<List<Int>> = _itemsFlow
+    private val random = Random.nextBoolean()
 
     fun validateInput(newInput: String?): Result<Int> {
         if (newInput.isNullOrEmpty()) return Result.failure(Exception("input is empty"))
@@ -27,9 +29,13 @@ object Model {
         if (item < MIN_VALUE) return Result.failure(Exception("item smaller than $MIN_VALUE"))
         else {
             delay(DELAY)
-            items = items + item
-            _itemsFlow.update { items }
-            return Result.success(Unit)
+            if (Random.nextBoolean()) {
+                items = items + item
+                _itemsFlow.update { items }
+                return Result.success(Unit)
+            } else {
+                return Result.failure(Exception("random error"))
+            }
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                             }
                     }
                     .onFailure { error ->
-                        displayErrorMessage(error)
+                        displayInputError(error)
                     }
             }
         }
@@ -83,16 +84,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayErrorMessage(exception: Throwable) {
-        displayError(exception.message.orEmpty())
-    }
-
     private fun inputChanged(newInput: String) {
         Model.validateInput(newInput)
             .onFailure { error ->
-                displayErrorMessage(error)
+                displayInputError(error)
             }.onSuccess {
-                hideError()
+                hideInputError()
             }
     }
 
@@ -110,19 +107,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayError(errorMessage: String) {
+    private fun displayErrorMessage(exception: Throwable) {
+        Snackbar.make(this, button, exception.message.toString(), Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun displayInputError(exception: Throwable) {
         runOnUiThread {
-            input.error = errorMessage
+            input.error = exception.message
         }
     }
 
-    private fun hideError() {
+    private fun hideInputError() {
         runOnUiThread {
             input.error = null
         }
     }
 
-    fun displayItems(items: List<Int>) {
+    private fun displayItems(items: List<Int>) {
         runOnUiThread {
             adapter.updateData(items)
         }
