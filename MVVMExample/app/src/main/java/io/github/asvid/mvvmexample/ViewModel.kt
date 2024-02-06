@@ -1,5 +1,6 @@
 package io.github.asvid.mvvmexample
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,12 +15,20 @@ data class State(
     val isLoading: Boolean = false
 )
 
-class ViewModel : ViewModel() {
+const val INPUT_SAVED_STATE_KEY = "INPUT_SAVED_STATE_KEY"
+
+class ViewModel(
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State())
     val state: StateFlow<State> = _state
 
     init {
+        val inputText = savedStateHandle[INPUT_SAVED_STATE_KEY] ?: ""
+        _state.update {
+            it.copy(currentInput = inputText)
+        }
         viewModelScope.launch {
             Model.itemsFlow.collect { itemsUpdate ->
                 _state.update {
@@ -58,6 +67,7 @@ class ViewModel : ViewModel() {
     }
 
     fun inputChanged(newInput: String) {
+        savedStateHandle[INPUT_SAVED_STATE_KEY] = newInput
         viewModelScope.launch {
             _state.update { it.copy(currentInput = newInput) }
             Model.validateInput(newInput)
@@ -83,5 +93,10 @@ class ViewModel : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(inputError = exception.message) }
         }
+    }
+
+    override fun onCleared() {
+        //cancel work that is not handled withing `viewModelScope`
+        super.onCleared()
     }
 }

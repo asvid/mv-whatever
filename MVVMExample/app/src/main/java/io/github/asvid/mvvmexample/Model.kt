@@ -1,6 +1,5 @@
 package io.github.asvid.mvvmexample
 
-import androidx.core.text.isDigitsOnly
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +16,7 @@ object Model {
 
     fun validateInput(newInput: String?): Result<Int> {
         if (newInput.isNullOrEmpty()) return Result.failure(Exception("input is empty"))
-        return if (newInput.isDigitsOnly()) Result.success(newInput.toInt())
+        return if (newInput.all { it.isDigit() }) Result.success(newInput.toInt())
         else Result.failure(Exception("non-digit detected"))
     }
 
