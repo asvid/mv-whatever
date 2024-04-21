@@ -3,13 +3,22 @@ package io.github.asvid.mvvmexample
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.asvid.mvvmexample.items.AddItemUseCase
+import io.github.asvid.mvvmexample.items.AddItemUseCaseImpl
+import io.github.asvid.mvvmexample.items.InMemoryItemsRepository
+import io.github.asvid.mvvmexample.items.Item
+import io.github.asvid.mvvmexample.items.ReadItemsUseCase
+import io.github.asvid.mvvmexample.items.ReadItemsUseCaseImpl
+import io.github.asvid.mvvmexample.items.RemoteItemsRepository
+import io.github.asvid.mvvmexample.items.RemoveItemUseCase
+import io.github.asvid.mvvmexample.items.RemoveItemUseCaseImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class State(
-    val items: List<Int> = emptyList(),
+    val items: List<Item> = emptyList(),
     val inputError: String? = null,
     val currentInput: String? = null,
     val isLoading: Boolean = false
@@ -24,19 +33,37 @@ class ViewModel(
     private val _state: MutableStateFlow<State> = MutableStateFlow(State())
     val state: StateFlow<State> = _state
 
+    // this would typically be a singleton injected by DI
+    val inMemoryItemsRepository = InMemoryItemsRepository()
+    val remoteItemsRepository = RemoteItemsRepository()
+
+    // those would typically be created and injected by DI
+    private val readItemsUseCase: ReadItemsUseCase = ReadItemsUseCaseImpl(inMemoryItemsRepository)
+    private val removeItemUseCase: RemoveItemUseCase =
+        RemoveItemUseCaseImpl(inMemoryItemsRepository)
+    // repository is used as interface, so the same use case implementation can handle InMemory/Remote stuff the same way
+    private val remoteAddItemUseCase: AddItemUseCase = AddItemUseCaseImpl(remoteItemsRepository)
+    private val addItemUseCase: AddItemUseCase = AddItemUseCaseImpl(inMemoryItemsRepository)
+
     init {
         val inputText = savedStateHandle[INPUT_SAVED_STATE_KEY] ?: ""
         _state.update {
             it.copy(currentInput = inputText)
         }
         viewModelScope.launch {
-            Model.itemsFlow.collect { itemsUpdate ->
-                _state.update {
-                    it.copy(
-                        items = itemsUpdate
-                    )
+            readItemsUseCase()
+                .onSuccess { itemsFlow ->
+                    itemsFlow.collect { itemsUpdate ->
+                        _state.update {
+                            it.copy(
+                                items = itemsUpdate
+                            )
+                        }
+                    }
                 }
-            }
+                .onFailure { error ->
+                    displayErrorMessage(error)
+                }
         }
     }
 
@@ -45,7 +72,7 @@ class ViewModel(
             Model.validateInput(_state.value.currentInput)
                 .onSuccess { validatedItem ->
                     showLoading()
-                    Model.addItem(validatedItem)
+                    addItemUseCase(Item(validatedItem))
                         .onSuccess { hideLoading() }
                         .onFailure { error ->
                             hideLoading()
@@ -78,10 +105,10 @@ class ViewModel(
     }
 
 
-    fun removeItem(item: Int) {
+    fun removeItem(item: Item) {
         viewModelScope.launch {
             showLoading()
-            Model.removeItem(item)
+            removeItemUseCase(item)
                 .onSuccess { hideLoading() }
                 .onFailure { error ->
                     hideLoading()

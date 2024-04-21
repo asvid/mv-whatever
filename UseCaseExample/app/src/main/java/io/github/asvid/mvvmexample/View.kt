@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.asvid.mvvmexample.items.Item
 import io.github.asvid.mvvmexample.ui.theme.MVVMExampleTheme
 
 @Composable
@@ -27,7 +27,7 @@ fun View(
     state: State,
     inputChanged: (String) -> Unit,
     addButtonClicked: () -> Unit,
-    removeItem: (Int) -> Unit,
+    removeItem: (Item) -> Unit,
 ) {
 
     Column(
@@ -38,7 +38,7 @@ fun View(
         Text(
             // this could be calculated here
             // since there is no logic around this SUM, its just UI
-            text = "The sum is: ${state.items.sum()}",
+            text = "The sum is: ${state.items.sumOf { it.value }}",
             style = MaterialTheme.typography.headlineLarge
         )
 
@@ -85,8 +85,8 @@ fun View(
 
 @Composable
 fun ListItem(
-    item: Int,
-    onRemoveClicked: (Int) -> Unit
+    item: Item,
+    onRemoveClicked: (Item) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -108,7 +108,7 @@ fun ListItem(
 private fun View_Preview() {
     MVVMExampleTheme {
         View(state = State(
-            items = listOf(1, 2, 3),
+            items = listOf(Item(1), Item(2), Item(3)),
             inputError = null,
             currentInput = null
         ),
@@ -123,7 +123,7 @@ private fun View_Preview() {
 private fun View_Loading_Preview() {
     MVVMExampleTheme {
         View(state = State(
-            items = listOf(1, 2, 3),
+            items = listOf(Item(1), Item(2), Item(3)),
             inputError = null,
             currentInput = null,
             isLoading = true
@@ -139,7 +139,7 @@ private fun View_Loading_Preview() {
 private fun View_Error_Preview() {
     MVVMExampleTheme {
         View(state = State(
-            items = listOf(1, 2, 3),
+            items = listOf(Item(1), Item(2), Item(3)),
             inputError = "error",
             currentInput = null
         ),
