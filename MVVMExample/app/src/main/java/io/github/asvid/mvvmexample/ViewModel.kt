@@ -60,6 +60,7 @@ class ViewModel(
 
     private fun hideLoading() {
         _state.update { it.copy(isLoading = false) }
+        _state.value = State()
     }
 
     private fun showLoading() {
@@ -91,7 +92,9 @@ class ViewModel(
 
     private fun displayErrorMessage(exception: Throwable) {
         viewModelScope.launch {
-            _state.update { it.copy(inputError = exception.message) }
+            _state.update { currentState ->
+                currentState.copy(inputError = exception.message)
+            }
         }
     }
 
