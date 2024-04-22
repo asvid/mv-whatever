@@ -1,4 +1,4 @@
-package io.github.asvid.mvvmexample.ui.theme
+package io.github.asvid.mvvmexample.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

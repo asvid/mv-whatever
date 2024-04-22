@@ -1,6 +1,7 @@
 package io.github.asvid.mvvmexample
 
 import androidx.lifecycle.SavedStateHandle
+import io.github.asvid.mvvmexample.presentation.ViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

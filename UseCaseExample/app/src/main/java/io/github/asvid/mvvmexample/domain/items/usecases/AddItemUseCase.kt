@@ -1,6 +1,8 @@
-package io.github.asvid.mvvmexample.items
+package io.github.asvid.mvvmexample.domain.items.usecases
 
-import io.github.asvid.mvvmexample.Model.DELAY
+import io.github.asvid.mvvmexample.domain.errors.DomainError
+import io.github.asvid.mvvmexample.domain.items.Item
+import io.github.asvid.mvvmexample.domain.items.repositories.ItemsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -26,7 +28,7 @@ class AddItemUseCaseImpl(
                     DomainError.ItemAlreadyExistsOnTheList("Item: $item already exists")
                 )
             } else {
-                delay(DELAY)
+                delay(1000L)
                 // repository is not checking if item exists, no exceptions will be thrown here
                 itemsRepository.addItem(item)
                 Result.success(Unit)

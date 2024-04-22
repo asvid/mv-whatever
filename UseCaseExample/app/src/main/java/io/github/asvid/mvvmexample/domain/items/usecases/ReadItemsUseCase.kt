@@ -1,5 +1,8 @@
-package io.github.asvid.mvvmexample.items
+package io.github.asvid.mvvmexample.domain.items.usecases
 
+import io.github.asvid.mvvmexample.domain.errors.DomainError
+import io.github.asvid.mvvmexample.domain.items.Item
+import io.github.asvid.mvvmexample.domain.items.repositories.ItemsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

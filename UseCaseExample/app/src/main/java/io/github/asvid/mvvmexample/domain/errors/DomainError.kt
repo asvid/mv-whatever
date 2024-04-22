@@ -1,4 +1,4 @@
-package io.github.asvid.mvvmexample.items
+package io.github.asvid.mvvmexample.domain.errors
 
 sealed class DomainError(
     override val message: String? = null,

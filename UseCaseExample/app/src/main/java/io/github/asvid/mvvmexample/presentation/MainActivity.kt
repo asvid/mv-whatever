@@ -1,8 +1,6 @@
-package io.github.asvid.mvvmexample
+package io.github.asvid.mvvmexample.presentation
 
-import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,8 +11,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import io.github.asvid.mvvmexample.ui.theme.MVVMExampleTheme
+import io.github.asvid.mvvmexample.data.repositories.InMemoryItemsRepository
+import io.github.asvid.mvvmexample.data.repositories.RemoteItemsRepository
+import io.github.asvid.mvvmexample.domain.items.usecases.AddItemUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.AddItemUseCaseImpl
+import io.github.asvid.mvvmexample.domain.items.usecases.ReadItemsUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.ReadItemsUseCaseImpl
+import io.github.asvid.mvvmexample.domain.items.usecases.RemoveItemUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.RemoveItemUseCaseImpl
+import io.github.asvid.mvvmexample.domain.items.usecases.ValidateInputUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.ValidateInputUseCaseImpl
+import io.github.asvid.mvvmexample.presentation.theme.MVVMExampleTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +29,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         // Use the 'by viewModels()' Kotlin property delegate
         // from the activity-ktx artifact
+
         val viewModel: ViewModel by viewModels()
 
         setContent {

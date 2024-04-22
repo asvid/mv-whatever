@@ -1,17 +1,19 @@
-package io.github.asvid.mvvmexample
+package io.github.asvid.mvvmexample.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.asvid.mvvmexample.items.AddItemUseCase
-import io.github.asvid.mvvmexample.items.AddItemUseCaseImpl
-import io.github.asvid.mvvmexample.items.InMemoryItemsRepository
-import io.github.asvid.mvvmexample.items.Item
-import io.github.asvid.mvvmexample.items.ReadItemsUseCase
-import io.github.asvid.mvvmexample.items.ReadItemsUseCaseImpl
-import io.github.asvid.mvvmexample.items.RemoteItemsRepository
-import io.github.asvid.mvvmexample.items.RemoveItemUseCase
-import io.github.asvid.mvvmexample.items.RemoveItemUseCaseImpl
+import io.github.asvid.mvvmexample.domain.items.usecases.AddItemUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.AddItemUseCaseImpl
+import io.github.asvid.mvvmexample.data.repositories.InMemoryItemsRepository
+import io.github.asvid.mvvmexample.domain.items.Item
+import io.github.asvid.mvvmexample.domain.items.usecases.ReadItemsUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.ReadItemsUseCaseImpl
+import io.github.asvid.mvvmexample.data.repositories.RemoteItemsRepository
+import io.github.asvid.mvvmexample.domain.items.usecases.RemoveItemUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.RemoveItemUseCaseImpl
+import io.github.asvid.mvvmexample.domain.items.usecases.ValidateInputUseCase
+import io.github.asvid.mvvmexample.domain.items.usecases.ValidateInputUseCaseImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -35,15 +37,14 @@ class ViewModel(
 
     // this would typically be a singleton injected by DI
     val inMemoryItemsRepository = InMemoryItemsRepository()
-    val remoteItemsRepository = RemoteItemsRepository()
 
     // those would typically be created and injected by DI
     private val readItemsUseCase: ReadItemsUseCase = ReadItemsUseCaseImpl(inMemoryItemsRepository)
     private val removeItemUseCase: RemoveItemUseCase =
         RemoveItemUseCaseImpl(inMemoryItemsRepository)
-    // repository is used as interface, so the same use case implementation can handle InMemory/Remote stuff the same way
-    private val remoteAddItemUseCase: AddItemUseCase = AddItemUseCaseImpl(remoteItemsRepository)
     private val addItemUseCase: AddItemUseCase = AddItemUseCaseImpl(inMemoryItemsRepository)
+
+    private val validateInputUseCase: ValidateInputUseCase = ValidateInputUseCaseImpl()
 
     init {
         val inputText = savedStateHandle[INPUT_SAVED_STATE_KEY] ?: ""
@@ -69,7 +70,7 @@ class ViewModel(
 
     fun addButtonClicked() {
         viewModelScope.launch {
-            Model.validateInput(_state.value.currentInput)
+            validateInputUseCase(_state.value.currentInput)
                 .onSuccess { validatedItem ->
                     showLoading()
                     addItemUseCase(Item(validatedItem))
@@ -98,7 +99,7 @@ class ViewModel(
         savedStateHandle[INPUT_SAVED_STATE_KEY] = newInput
         viewModelScope.launch {
             _state.update { it.copy(currentInput = newInput) }
-            Model.validateInput(newInput)
+            validateInputUseCase(newInput)
                 .onSuccess { _state.update { it.copy(inputError = null) } }
                 .onFailure { exception -> _state.update { it.copy(inputError = exception.message) } }
         }

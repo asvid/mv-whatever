@@ -1,4 +1,4 @@
-package io.github.asvid.mvvmexample
+package io.github.asvid.mvvmexample.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.asvid.mvvmexample.items.Item
-import io.github.asvid.mvvmexample.ui.theme.MVVMExampleTheme
+import io.github.asvid.mvvmexample.domain.items.Item
+import io.github.asvid.mvvmexample.presentation.theme.MVVMExampleTheme
 
 @Composable
 fun View(

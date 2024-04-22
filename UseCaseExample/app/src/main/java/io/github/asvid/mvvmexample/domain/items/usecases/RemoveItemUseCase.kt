@@ -1,6 +1,8 @@
-package io.github.asvid.mvvmexample.items
+package io.github.asvid.mvvmexample.domain.items.usecases
 
-import io.github.asvid.mvvmexample.Model.DELAY
+import io.github.asvid.mvvmexample.domain.errors.DomainError
+import io.github.asvid.mvvmexample.domain.items.Item
+import io.github.asvid.mvvmexample.domain.items.repositories.ItemsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -22,13 +24,15 @@ class RemoveItemUseCaseImpl(
                     DomainError.ItemNotFoundError("Item: $item was not found in repository, it can't be removed")
                 )
             } else {
-                delay(DELAY)
+                delay(1000L)
                 // no throwing from UseCase, just nice Results.
                 try {
                     // or rely on checks in the Repository
                     itemsRepository.removeItem(item.id)
                     Result.success(Unit)
                 } catch (e: Exception) {
+                    // catching generic exception is usually a code smell,
+                    // but here I don't want any exception to pass further
                     val domainError = getDomainErrorFromException(e, item)
                     Result.failure(domainError)
                 }

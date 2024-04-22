@@ -1,4 +1,4 @@
-package io.github.asvid.mvvmexample.items
+package io.github.asvid.mvvmexample.domain.items
 
 import java.util.UUID
 
